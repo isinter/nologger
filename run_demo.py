@@ -50,7 +50,7 @@ def build_payload(index):
         "index": index,
         "request_id": uuid.uuid4(),
         "amount": decimal.Decimal("123.45"),
-        "timestamp": datetime.datetime.now(datetime.UTC),
+        "timestamp": datetime.datetime.now(datetime.timezone.utc),
         "payload": {
             "user": {"id": 42, "role": "admin"},
             "tags": ["alpha", "beta"],

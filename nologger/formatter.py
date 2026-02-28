@@ -80,7 +80,7 @@ class JSONFormatter(logging.Formatter):
         将日志记录格式化为 JSON 字符串。
         """
         # 使用时区感知的 datetime 避免弃用警告
-        dt = datetime.datetime.fromtimestamp(record.created, datetime.UTC)
+        dt = datetime.datetime.fromtimestamp(record.created, datetime.timezone.utc)
         base = {
             "level": record.levelname,
             "logger": record.name,
