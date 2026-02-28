@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nologger"
+version = "0.1.0"
+authors = [
+  { name="Ale Wang", email="isint@qq.com" },
+]
+description = "A powerful, structured logging solution for Python designed for production environments."
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: System :: Logging",
+]
+dependencies = [
+    "PyYAML>=6.0.1",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/isinter/nologger"
+"Bug Tracker" = "https://github.com/isinter/nologger/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["nologger*"]
