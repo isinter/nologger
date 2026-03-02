@@ -29,8 +29,8 @@ def build_config(console_json=False):
             "rotation": {
                 "when": "S",
                 "interval": 5,
-                "backupCount": 3,
-                "maxBytes": 1024,
+                "backup_count": 3,
+                "max_bytes": 10 * 1024 * 1024,
             },
             "retention": "1 days",
         },
@@ -190,7 +190,7 @@ def main():
     # 新增：热加载演示
     demo_hot_reload(logger)
     
-    emit_rotation_logs(logger, count=10) # 减少数量，加速演示
+    emit_rotation_logs(logger, count=10, sleep=5)
     logger.info("演示结束")
 
 

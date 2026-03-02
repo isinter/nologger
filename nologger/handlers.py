@@ -168,9 +168,84 @@ class SmartRotatingFileHandler(TimedRotatingFileHandler):
 
     def doRollover(self):
         """
-        执行轮转操作，增加清理逻辑。
+        执行轮转操作。
+        如果目标文件名已存在（通常是因为在同一个时间间隔内触发了多次基于大小的轮转），
+        则自动增加序号后缀 (如 app.2026-03-02.1.log)。
         """
-        super().doRollover()
+        if self.stream:
+            self.stream.close()
+            self.stream = None
+        
+        # 计算基于时间的标准后缀
+        currentTime = int(time.time())
+        dstNow = time.localtime(currentTime).tm_isdst
+        t = self.rolloverAt - self.interval
+        if self.utc:
+            timeTuple = time.gmtime(t)
+        else:
+            timeTuple = time.localtime(t)
+            dstThen = timeTuple.tm_isdst
+            if dstNow != dstThen:
+                if dstNow:
+                    addend = 3600
+                else:
+                    addend = -3600
+                timeTuple = time.localtime(t + addend)
+        
+        # 基础后缀 (例如 2026-02-28)
+        base_suffix = time.strftime(self.suffix, timeTuple)
+        
+        # 构造目标文件名
+        base, ext = os.path.splitext(self.baseFilename)
+        dfn = f"{base}.{base_suffix}{ext}"
+        
+        # 如果文件已存在，则优先使用当前精确时间戳以避免大量序号文件
+        if os.path.exists(dfn):
+            if self.utc:
+                precise_suffix = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime(currentTime))
+            else:
+                precise_suffix = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime(currentTime))
+            dfn_precise = f"{base}.{precise_suffix}{ext}"
+            if not os.path.exists(dfn_precise):
+                dfn = dfn_precise
+            else:
+                # 若仍冲突，再回退到递增序号以保证唯一性
+                i = 1
+                while True:
+                    dfn_seq = f"{base}.{base_suffix}.{i}{ext}"
+                    if not os.path.exists(dfn_seq):
+                        dfn = dfn_seq
+                        break
+                    i += 1
+        
+        # 执行重命名
+        if os.path.exists(self.baseFilename):
+            os.rename(self.baseFilename, dfn)
+            
+        # 清理旧日志
+        if self.backupCount > 0:
+            for s in self.getFilesToDelete():
+                os.remove(s)
+        
+        if not self.delay:
+            self.stream = self._open()
+            
+        # 更新下次轮转时间
+        newRolloverAt = self.computeRollover(currentTime)
+        while newRolloverAt <= currentTime:
+            newRolloverAt = newRolloverAt + self.interval
+        
+        # 处理夏令时切换
+        if not self.utc:
+            dstCheckAt = newRolloverAt - self.interval
+            if time.localtime(dstCheckAt).tm_isdst != time.localtime(newRolloverAt).tm_isdst:
+                if time.localtime(dstCheckAt).tm_isdst:
+                    addend = 3600
+                else:
+                    addend = -3600
+                newRolloverAt += addend
+        self.rolloverAt = newRolloverAt
+        
         cleanup_old_logs(self.baseFilename, self.retention)
 
     def emit(self, record):
