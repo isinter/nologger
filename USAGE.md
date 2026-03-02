@@ -28,7 +28,7 @@ config = {
         "enabled": True, 
         "path": "logs/app.log", 
         "json": True,
-        "rotation": {"when": "D", "interval": 1, "maxBytes": 104857600}
+        "rotation": {"when": "D", "interval": 1, "max_bytes": 104857600}
     }
 }
 
@@ -110,7 +110,7 @@ config = {
 }
 ```
 
-*   **多维度轮转：** 如果设置了 `maxBytes`，即使未到指定时间（如一小时），只要文件大小超限也会触发轮转。
+*   **多维度轮转：** 如果设置了 `max_bytes`，即使未到指定时间（如一小时），只要文件大小超限也会触发轮转。
 *   **防止覆盖：** 在同一时间段内触发多次轮转时，会自动追加序号（如 `app.2026-03-02.1.log`），确保日志不丢失。
 *   **并发安全：** 内置文件锁，解决 Windows/Linux 下多进程写入冲突。
 

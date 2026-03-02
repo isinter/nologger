@@ -17,8 +17,8 @@ DEFAULT_CONFIG = {
         "rotation": {
             "when": "D",
             "interval": 1,
-            "backupCount": 7,
-            "maxBytes": 100 * 1024 * 1024,
+            "backup_count": 7,
+            "max_bytes": 100 * 1024 * 1024,
         },
         "retention": "30 days",
     },

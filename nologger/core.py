@@ -163,9 +163,8 @@ def _build_handlers(cfg):
     file_cfg = cfg.get("file", {})
     if file_cfg.get("enabled"):
         rotation = file_cfg.get("rotation", {})
-        # 兼容旧配置键（小驼峰）与新配置键（下划线）
-        backup_count = rotation.get("backup_count", rotation.get("backupCount", 7))
-        max_bytes = rotation.get("max_bytes", rotation.get("maxBytes", 100 * 1024 * 1024))
+        backup_count = rotation.get("backup_count", 7)
+        max_bytes = rotation.get("max_bytes", 100 * 1024 * 1024)
         file_handler = SmartRotatingFileHandler(
             file_cfg.get("path", "logs/app.log"),
             when=rotation.get("when", "D"),
