@@ -1,7 +1,6 @@
 import json
 import os
 
-
 DEFAULT_CONFIG = {
     "name": "nologger",
     "level": "INFO",

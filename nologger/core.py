@@ -1,5 +1,6 @@
 import atexit
 import logging
+import os
 import queue
 import threading
 import time
@@ -10,8 +11,7 @@ from .context import get_trace_id
 from .decorators import log_execution
 from .formatter import ColorFormatter, JSONFormatter
 from .handlers import SmartRotatingFileHandler
-from .utils import get_host_ip
-
+from .utils import get_host_ip, to_log_level
 
 _listener = None
 _configured = False
@@ -23,6 +23,7 @@ class ContextFilter(logging.Filter):
     """
     日志过滤器，用于自动向日志记录中注入上下文元数据（如 TraceID、服务名）。
     """
+
     def __init__(self, service_name=None):
         super().__init__()
         self.service_name = service_name
@@ -37,6 +38,7 @@ class Nologger:
     """
     增强型日志对象包装器，提供 catch 和 log_execution 等额外功能。
     """
+
     def __init__(self, logger):
         self.logger = logger
 
@@ -60,6 +62,7 @@ def _logger_catch(logger):
     """
     内部异常捕获实现。
     """
+
     class _Catch:
         def __enter__(self):
             return self
@@ -69,6 +72,7 @@ def _logger_catch(logger):
                 logger.exception("捕获异常")
                 return True
             return False
+
     return _Catch()
 
 
@@ -80,7 +84,7 @@ def setup_logger(config=None, config_path=None, use_env=True, name=None):
     cfg = load_config(config=config, config_path=config_path, use_env=use_env)
     logger_name = name or cfg.get("name") or "nologger"
     logger = logging.getLogger(logger_name)
-    logger.setLevel(_to_level(cfg.get("level", "INFO")))
+    logger.setLevel(to_log_level(cfg.get("level", "INFO")))
     logger.propagate = False
     if _configured:
         logger.handlers.clear()
@@ -133,7 +137,6 @@ def enable_hot_reload(config_path, interval=1.0, use_env=True):
                 pass
             time.sleep(interval)
 
-    import os
     thread = threading.Thread(target=_watch, name="nologger-hot-reload", daemon=True)
     thread.start()
     _hot_reload_thread = thread
@@ -158,7 +161,7 @@ def _build_handlers(cfg):
             console_handler.setFormatter(_json_formatter(cfg))
         else:
             console_handler.setFormatter(ColorFormatter(use_color=console_cfg.get("colored", True)))
-        console_handler.setLevel(_to_level(cfg.get("level", "INFO")))
+        console_handler.setLevel(to_log_level(cfg.get("level", "INFO")))
         handlers.append(console_handler)
     file_cfg = cfg.get("file", {})
     if file_cfg.get("enabled"):
@@ -177,7 +180,7 @@ def _build_handlers(cfg):
             file_handler.setFormatter(_json_formatter(cfg))
         else:
             file_handler.setFormatter(ColorFormatter(use_color=False))
-        file_handler.setLevel(_to_level(cfg.get("level", "INFO")))
+        file_handler.setLevel(to_log_level(cfg.get("level", "INFO")))
         handlers.append(file_handler)
     return handlers
 
@@ -189,15 +192,6 @@ def _json_formatter(cfg):
     service_name = cfg.get("context", {}).get("service_name")
     host_ip = get_host_ip()
     return JSONFormatter(service_name=service_name, host_ip=host_ip)
-
-
-def _to_level(level):
-    """
-    内部方法：转换日志级别。
-    """
-    if isinstance(level, int):
-        return level
-    return logging._nameToLevel.get(str(level).upper(), logging.INFO)
 
 
 def _stop_listener():

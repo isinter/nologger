@@ -66,6 +66,7 @@ class JSONFormatter(logging.Formatter):
     """
     JSON 格式化器，将日志记录转换为结构化 JSON 字符串。
     """
+
     def __init__(self, service_name=None, host_ip=None, flatten=True):
         """
         初始化格式化器。

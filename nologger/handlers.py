@@ -19,6 +19,7 @@ def _lock_stream(stream):
     if os.name == "nt":
         try:
             import msvcrt
+
             # 锁定 1 字节即可，仅作为并发写入的标志
             msvcrt.locking(fd, msvcrt.LK_LOCK, 1)
         except Exception:
@@ -26,6 +27,7 @@ def _lock_stream(stream):
     else:
         try:
             import fcntl
+
             fcntl.flock(fd, fcntl.LOCK_EX)
         except Exception:
             pass
@@ -44,12 +46,14 @@ def _unlock_stream(stream):
     if os.name == "nt":
         try:
             import msvcrt
+
             msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
         except Exception:
             pass
     else:
         try:
             import fcntl
+
             fcntl.flock(fd, fcntl.LOCK_UN)
         except Exception:
             pass
@@ -66,7 +70,7 @@ def cleanup_old_logs(log_path, retention):
     directory = os.path.dirname(os.path.abspath(log_path))
     base_full = os.path.basename(log_path)
     base_name, base_ext = os.path.splitext(base_full)
-    
+
     if not os.path.isdir(directory):
         return
     now = time.time()
@@ -76,7 +80,7 @@ def cleanup_old_logs(log_path, retention):
         # 2. 以 base_ext 结尾
         if not (filename.startswith(base_name) and filename.endswith(base_ext)):
             continue
-        
+
         full_path = os.path.join(directory, filename)
         try:
             mtime = os.path.getmtime(full_path)
@@ -94,6 +98,7 @@ class SmartRotatingFileHandler(TimedRotatingFileHandler):
     支持时间与大小双向轮转的增强型日志处理器。
     支持优雅的命名规则：轮转后的文件名保留扩展名 (如 app.2026-02-28.log)。
     """
+
     def __init__(
         self,
         filename,
@@ -133,16 +138,16 @@ class SmartRotatingFileHandler(TimedRotatingFileHandler):
         """
         if not default_name.startswith(self.baseFilename):
             return default_name
-            
+
         # 获取后缀 (如 .2026-02-28 或 .1)
-        suffix = default_name[len(self.baseFilename):]
+        suffix = default_name[len(self.baseFilename) :]
         if not suffix:
             return default_name
-            
+
         # 去掉前导点
         if suffix.startswith("."):
             suffix = suffix[1:]
-            
+
         # 分离原文件名的基名和扩展名
         base, ext = os.path.splitext(self.baseFilename)
         return f"{base}.{suffix}{ext}"
@@ -175,7 +180,7 @@ class SmartRotatingFileHandler(TimedRotatingFileHandler):
         if self.stream:
             self.stream.close()
             self.stream = None
-        
+
         # 计算基于时间的标准后缀
         currentTime = int(time.time())
         dstNow = time.localtime(currentTime).tm_isdst
@@ -191,14 +196,14 @@ class SmartRotatingFileHandler(TimedRotatingFileHandler):
                 else:
                     addend = -3600
                 timeTuple = time.localtime(t + addend)
-        
+
         # 基础后缀 (例如 2026-02-28)
         base_suffix = time.strftime(self.suffix, timeTuple)
-        
+
         # 构造目标文件名
         base, ext = os.path.splitext(self.baseFilename)
         dfn = f"{base}.{base_suffix}{ext}"
-        
+
         # 如果文件已存在，则优先使用当前精确时间戳以避免大量序号文件
         if os.path.exists(dfn):
             if self.utc:
@@ -217,24 +222,24 @@ class SmartRotatingFileHandler(TimedRotatingFileHandler):
                         dfn = dfn_seq
                         break
                     i += 1
-        
+
         # 执行重命名
         if os.path.exists(self.baseFilename):
             os.rename(self.baseFilename, dfn)
-            
+
         # 清理旧日志
         if self.backupCount > 0:
             for s in self.getFilesToDelete():
                 os.remove(s)
-        
+
         if not self.delay:
             self.stream = self._open()
-            
+
         # 更新下次轮转时间
         newRolloverAt = self.computeRollover(currentTime)
         while newRolloverAt <= currentTime:
             newRolloverAt = newRolloverAt + self.interval
-        
+
         # 处理夏令时切换
         if not self.utc:
             dstCheckAt = newRolloverAt - self.interval
@@ -245,7 +250,7 @@ class SmartRotatingFileHandler(TimedRotatingFileHandler):
                     addend = -3600
                 newRolloverAt += addend
         self.rolloverAt = newRolloverAt
-        
+
         cleanup_old_logs(self.baseFilename, self.retention)
 
     def emit(self, record):

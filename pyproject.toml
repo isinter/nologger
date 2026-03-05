@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nologger"
- version = "0.2.2"
+version = "0.2.2"
 authors = [
   { name="Ale Wang", email="isint@qq.com" },
 ]
 description = "A powerful, structured logging solution for Python designed for production environments."
 readme = "README.md"
-requires-python = ">=3.6"
+requires-python = ">=3.7"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -19,7 +19,15 @@ classifiers = [
 ]
 dependencies = [
     "PyYAML>=6.0.1",
-    "contextvars; python_version < '3.7'",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=24.0.0",
+    "flake8>=7.0.0",
+    "mypy>=1.8.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
 ]
 
 [project.urls]
@@ -29,3 +37,38 @@ dependencies = [
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["nologger*"]
+
+[tool.black]
+line-length = 120
+target-version = ['py37', 'py38', 'py39', 'py310', 'py311', 'py312', 'py313']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.flake8]
+max-line-length = 120
+extend-ignore = ["E203", "E501", "W503"]
+exclude = [".git", "__pycache__", "build", "dist", "*.pyc", "*.egg-info"]
+
+[tool.mypy]
+python_version = "3.7"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+exclude = [
+    '^build/',
+    '^dist/',
+    '^tests/',
+]
