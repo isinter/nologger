@@ -5,6 +5,17 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 项目版本遵循 [Semantic Versioning](https://semver.org/lang/zh-CN/)。
 
+## [Unreleased]
+
+## [0.3.1] - 2026-03-05
+
+### 修复
+- 修复 GitHub Actions CI 配置，优化 Python 版本与 Ubuntu 镜像的搭配
+- 为 Python 3.7-3.9 使用 Ubuntu 22.04 镜像
+- 为 Python 3.10+ 使用 Ubuntu latest (24.04) 镜像
+- 添加 .flake8 配置文件，统一代码检查规则
+- 移除未使用的导入
+
 ## [0.3.0] - 2026-03-05
 
 ### 改进
