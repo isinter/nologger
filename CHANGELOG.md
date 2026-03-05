@@ -5,14 +5,19 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 项目版本遵循 [Semantic Versioning](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased]
+## [0.3.0] - 2026-03-05
 
 ### 改进
 - 添加了类型注解 (Type Hints) 提升代码可维护性
 - 配置了代码质量工具 (Black, Flake8, MyPy)
-- 添加了基础的单元测试框架
+- 添加了完整的单元测试框架 (tests/)
 - 消除了代码重复（统一了 to_log_level 函数）
-- 优化了导入结构
+- 新增项目文档 (CHANGELOG.md, CONTRIBUTING.md)
+- 配置 GitHub Actions CI/CD，支持 Python 3.7-3.13
+- 添加 PyPI 自动发布工作流
+- 优化导入结构和代码格式
+
+## [Unreleased]
 
 ## [0.2.2] - 2025-03-04
 
