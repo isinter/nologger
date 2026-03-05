@@ -1,6 +1,5 @@
 import os
-import tempfile
-from nologger.config import load_config, deep_merge, DEFAULT_CONFIG
+from nologger.config import load_config, deep_merge
 
 
 def test_deep_merge():
